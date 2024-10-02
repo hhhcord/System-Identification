@@ -1,0 +1,161 @@
+\documentclass[a4paper,twocolumn]{jarticle}
+
+% 余白の設定
+\usepackage[top=2cm, bottom=2cm, left=1.5cm, right=1.5cm]{geometry}
+
+% 数式
+\usepackage{amsmath,amsfonts,mathtools}
+\usepackage{bm}
+
+% 画像
+\usepackage[dvipdfmx]{graphicx}
+
+\begin{document}
+
+\section*{予測誤差法}
+
+このセクションでは、予測誤差法という制御理論における重要な手法を学びます。
+
+\[
+  (qw)_{(t)}\coloneqq w_{(t-1)}
+\]
+ここで、\( qw \)は遅延オペレータを表し、時刻\( t \)における値を時刻\( t-1 \)における値として表現します。
+
+\[
+  G(q)=\frac{b_nq^n+b_{n-1}q^{n-1}+\cdots+b_0}{q^n+a_{n-1}q^{n-1}+\cdots+a_1q+a_0}
+\]
+\( G(q) \)は伝達関数を表し、システムの入出力関係を示します。分子はシステムの出力を、分母はシステムの入力を表しています。
+
+\begin{align*}
+  y_{(k+n)}&=a_{n-1}y_{(k+n-1)}+\cdots+a_1y_{(k+1)}+a_0y_{(k)}\\
+  &+b_nu_{(k+n)}+\cdots+b_1u_{(k+1)}+b_0u_{(k)}+e_{(k)}
+\end{align*}
+この方程式は、時刻\( k+n \)における出力\( y \)が、過去の出力、入力、および誤差\( e \)の関数であることを示しています。
+
+\[
+  Y=X_1v_1+X_2v_2+e
+\]
+これは、システムの出力\( Y \)が二つの項\( X_1v_1 \)と\( X_2v_2 \)、及び誤差\( e \)の和であることを示しています。
+
+以下の方程式は、これらのベクトルと行列の定義を示しています。
+
+\begin{align*}
+  Y&\coloneqq \begin{bmatrix}
+    y_{(n)}&y_{(n+1)}&\cdots&y_{(N-1)}&y_{(N)}
+  \end{bmatrix}^\top\\
+  X_1&\coloneqq \begin{bmatrix}
+    y_{(n-1)}&\cdots&y_{(1)}&y_{(0)}\\
+    y_{(n)}&\cdots&y_{(2)}&y_{(1)}\\
+    \vdots&&\vdots&\vdots\\
+    y_{(N-2)}&\cdots&y_{(N-n)}&y_{(N-n-1)}\\
+    y_{(N-1)}&\cdots&y_{(N-n+1)}&y_{(N-n)}
+  \end{bmatrix}\\
+  v_1&\coloneqq \begin{bmatrix}
+    a_{n-1}&a_{n-2}&\cdots&a_0
+  \end{bmatrix}^\top\\
+  X_2&\coloneqq \begin{bmatrix}
+    u_{(n)}&\cdots&u_{(1)}&u_{(0)}\\
+    u_{(n+1)}&\cdots&u_{(2)}&u_{(1)}\\
+    \vdots&&\vdots&\vdots\\
+    u_{(N-1)}&\cdots&u_{(N-n)}&u_{(N-n-1)}\\
+    u_{(N)}&\cdots&u_{(N-n+1)}&u_{(N-n)}
+  \end{bmatrix}\\
+  v_2&\coloneqq \begin{bmatrix}
+    b_{n}&b_{n-1}&\cdots&b_0
+  \end{bmatrix}^\top\\
+  e&\coloneqq \begin{bmatrix}
+    e_{(n)}&e_{(n+1)}&\cdots&e_{(N-1)}&e_{(N)}
+  \end{bmatrix}^\top\\
+\end{align*}
+
+\[
+  \mathrm{arg}~\min_v\sum_{k=n}^{N}e(k)^2=(X^\top X)^{-1}X^\top Y
+\]
+この方程式は、誤差の二乗和を最小化することで、最適なパラメータ\( v \)を見つける方法を示しています。
+
+\begin{align*}
+  v&\coloneqq \begin{bmatrix}
+    v_1^\top&v_2^\top
+  \end{bmatrix}^\top\\
+  X&\coloneqq \begin{bmatrix}
+    X_1&X_2
+  \end{bmatrix}
+\end{align*}
+
+本節では、さまざまな同定法の基本である最小二乗同定を学ぶ\cite{mori2022digital}。
+
+つぎの線形離散時間モデルで記述されているシステムを考える。
+\[
+  A(q^{-1})y_k=q^{-j}B(q^{-1})u_k+C(q^{-1})e_k
+\]
+ここで、$y_k$は出力信号、$u_k$は入力信号、そして$e_k$は平均値ゼロの白色雑音である。
+また、$A(q^{-1})$、$B(q^{-1})$および$C(q^{-1})$は、次式で与えられる多項式である。
+\begin{align*}
+  A(q^{-1})&=1+a_1q^{-1}+a_2q^{-2}+\cdots+a_nq^{-n}\\
+  B(q^{-1})&=b_0+b_1q^{-1}+b_2q^{-2}+\cdots+b_mq^{-m}\\
+  C(q^{-1})&=1+c_1q^{-1}+c_2q^{-2}+\cdots+c_lq^{-1}
+\end{align*}
+ARMAモデルに$u_k$が付加されたものでCARMA (controlled auto-regressive and moving average) モデルという。
+また、$q^{-j}$は、$j$ステップの長さのむだ時間を表している。
+
+$e_k$は、システム雑音、観測雑音など観測できない雑音を表している。
+そこでひとまず、$C(q^{-1})e_k$を除いた式が、観測できる入出力信号に対してできるだけ成り立つように多項式$A(q^{-1})$、$B(q^{-1})$の係数を決定することを考える。
+
+簡単のため$n=m+1$、$j=1$として、書くとつぎのようになる。
+\begin{align*}
+  y_n&=-a_1y_{n-1}-a_2y_{n-2}-\cdots-a_ny_0\\
+  &+b_0u_m+b_1u_{m-1}+\cdots+b_mu_0+e_n\\
+  y_{n+1}&=-a_1y_n-a_2y_{n-1}-\cdots-a_ny_1\\
+  &+b_0u_{m+1}+b_1u_m+\cdots+b_mu_1+e_{n+1}\\
+  y_{n+2}&=-a_1y_{n+1}-a_2y_{n}-\cdots-a_ny_2\\
+  &+b_0u_{m+2}+b_1u_{m+1}+\cdots+b_mu_2+e_{n+2}\\
+  &\vdots\\
+  y_N&=-a_1y_{N-1}-a_2y_{N-2}-\cdots-a_ny_{N-n}\\
+  &+b_0u_{N-1}+b_1u_{N-2}+\cdots+b_mu_{N-m-1}+e_N
+\end{align*}
+評価関数
+\[
+  J=\sum_{k=n}^Ne_k^2
+\]
+を最小にするように係数$a_i,b_i$を決定せよ。
+
+連立方程式は、
+\[
+  \overline{y}=\Omega\theta+\overline{e}
+\]
+で表せる。ここで、
+\[
+  \overline{y}=\begin{bmatrix}
+    y_n&y_{n+1}&y_{n+2}\cdots&y_N
+  \end{bmatrix}^\top
+\]
+\[
+  \theta=\begin{bmatrix}
+    a_1&a_2&\cdots&a_n&b_0&b_1&\cdots b_m
+  \end{bmatrix}^\top
+\]
+\[
+  \Omega=\begin{bmatrix}
+    -y_{n-1}&-y_{n-2}&\cdots&-y_0&u_m&u_{m-1}&\cdots&u_0\\
+    -y_n&-y_{n-1}&\cdots&-y_1&u_{m+1}&u_m&\cdots&u_1\\
+    -y_{n+1}&^y_n&\cdots&-y_2&u_{m+2}&u_{m+1}&\cdots&u_2\\
+    \vdots&\vdots&&\vdots&\vdots&\vdots&&\vdots\\
+    -y_{N-1}&-y_{N-2}&\cdots&-y_{N-n}&u_{N-1}&u_{N-2}&\cdots&u_{N-m-1}
+  \end{bmatrix}
+\]
+\[
+  \overline{e}=\begin{bmatrix}
+    e_n&e_{n+1}&e_{n+2}&\cdots&e_N
+  \end{bmatrix}^\top
+\]
+である。
+
+評価関数を最小にする係数$a_i,b_i$の最小二乗推定値$\hat{\theta}$は、つぎのように与えられる。
+\[
+  \hat{\theta}=(\Omega^\top\Omega)^{-1}\Omega^\top\overline{y}
+\]
+
+\bibliography{reference}       %bibtexで参考文献を入れる場合使用
+\bibliographystyle{IEEEtran}   %参考文献のスタイル指定
+
+\end{document}

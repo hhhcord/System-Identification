@@ -1,0 +1,283 @@
+以下の資料を読んで、不足している情報を補えるか？
+日本語で返答せよ。
+
+資料：
+\textbf{Computational Steps} \\
+
+To better understand the computational procedure for the SRIM algorithm, the computational steps are summarized as follows: 
+
+\begin{enumerate}
+  \item Choose an integer $p$ so that 
+  \[
+    p\geq\frac{n}{m}+1,
+  \]
+  where $n$ is the desired order of the system and $m$ is the number of outputs. 
+  \item Compute correlation matrices $\mathcal{R}_{yy}$ of dimension $pm\times pm$, $\mathcal{R}_{yu}$ of dimension $pm\times pr$, and $\mathcal{R}_{uu}$ of dimension $pr\times pr$ (eqs. (14)) with the matrices $Y_p(k)$ of dimension $pm\times N$ and $\mathcal{U}_p(k)$ of dimension $pr\times N$ (eqs. (13)). 
+  The integer $r$ is the number of inputs. 
+  The index $k$ is the data point used as the starting point for system identification. 
+  The integer $N$ must be chosen so that 
+  \[
+    \ell-k-p+2\geq N>>\min(pm,pr),
+  \]
+  where $\ell$ is the length of the data. 
+  \item Calculate the correlation matrix $\mathcal{R}_{hh}$ of dimension $pm\times pm$ (eqs. (14)), that is, 
+  \[
+    \mathcal{R}_{hh}=\mathcal{R}_{yy}-\mathcal{R}_{yu}\mathcal{R}^{-1}_{uu}\mathcal{R}^\top_{yu}.
+  \]
+  \item Factor $\mathcal{R}_{hh}$ with singular-value decomposition for the full decomposition method (eq. (26)) or a portion of $\mathcal{R}_{hh}$ for the partial decomposition method (eq. (31)). 
+  \item Determine the order $n$ of the system by examining the singular values of $\mathcal{R}_{hh}$, and obtain $\mathcal{U}_n$ of dimension $pm\times n$ (eq. (26)) and $\mathcal{U}_o$ of dimension $pm\times n_o$, where $n_o=pm-n$ is the number of truncated small singular values. 
+  The integer $n_o$ must satisfy the condition 
+  \[
+    pn_o\geq(m+n)
+  \]
+  for the full decomposition method. 
+  For the partial decomposition method, $\mathcal{U}_n$ is replaced by $\mathcal{U}'_n$ (eq. (31)) and the integer $n_o$ is the sum of $m$ and the number of truncated singular values. 
+  \item Let $\mathcal{U}_n=\mathcal{O}_p$ or $\mathcal{U}'_n=\mathcal{O}_p$. 
+  Use equation (8) to determine the state matrix $A$. 
+  The output matrix $C$ is the first $m$ rows of $\mathcal{U}_n$. 
+  \item Compute 
+  \[
+    \mathcal{U}_{o\mathcal{R}}=\mathcal{U}_o^\top\mathcal{R}_{yu}\mathcal{R}_{uu}^{-1}
+  \]
+  (eq. (39)) for the indirect method, and construct $\mathcal{U}_{on}$ and $\mathcal{U}_{o\mathcal{T}}$ (eqs. (38) and (40)). 
+  Determine the input matrix $B$ and the direct transmission matrix $D$ from equation (41) (i.e., the first $m$ rows of $\mathcal{U}_{on}^\dagger \mathcal{U}_{o\mathcal{T}}$ from $D$ and the last $n$ rows produce $B$). 
+  For the direct method, construct $\mathcal{O}_{p\Gamma}$ and $\mathcal{O}_{pA}$ from equation (53) and solve for matrices $B$ and $D$ by computing $\mathcal{O}_{pA}^\dagger \mathcal{O}_{p\Gamma}$. 
+  The first $m$ rows of $\mathcal{O}_{pA}^\dagger\mathcal{O}_{p\Gamma}$ form matrix $D$, and the last $n$ rows produce matrix $B$. 
+
+  For the output-error minimization method, construct $y_N(0)$ and $\Phi$ from equations (64) and solve for matrices $B$ and $D$ by computing $\Phi^\dagger y_N(0)$. 
+  The first $n$ elements of $\Phi^\dagger y_N(0)$ form the initial state vector $x(0)$, the second $mr$ elements give the $r$ column vectors of $D$, and the last $nr$ elements produce the $r$ column vectors of $B$. 
+  \item Find the eigenvalues and eigenvectors of the realized state matrix and transform the realized model into model coordinates to compute system damping and frequencies. 
+  This step is needed only if modal parameters identification is desired. 
+  \item Calculate mode singular values (ref. 1) to quantify and distinguish the system and noise modes. 
+  This step provides a way for model reduction with modal truncation. 
+\end{enumerate}
+
+The computational steps reduce to the steps for the ERA/DC method (ref. 1) when the output data are the pulse-response-time history. 
+Assume that a pulse is given to excite the system at the time step zero. 
+Let $k=1$ in step 2. 
+The correlation matrix $\mathcal{R}_{yu}$ and $\mathcal{R}_{uu}$ become null, and $\mathcal{R}_{hh}=\mathcal{R}_{yy}$ is obtained. 
+Theoretically, the formulation 
+\[
+  \mathcal{R}_{hh}=\mathcal{R}_{yy}-\mathcal{R}_{yu}\mathcal{R}_{uu}^{-1}\mathcal{R}_{yu}^\top
+\]
+should not be used for computation of $\mathcal{R}_{hh}$ if $\mathcal{R}_{uu}$ is not invertible. 
+For special cases such as free decay and pulse responses, $\mathcal{R}_{hh}$ reduces to $\mathcal{R}_{yy}$ when the integer $k$ is chosen at the point where the input signal vanishes. 
+The colon in place of a subscript denotes the entire corresponding row or column. 
+The state matrix can then be computed by 
+\[
+    A = \mathcal{O}_p^\dagger(1:(p-1)m,:)\mathcal{O}_p(m+1:pm,:)\quad(8)
+\]
+
+To determine $\mathcal{O}_p$ and $\mathcal{T}_p$, first expand the vector equation (eq. (5)) to a matrix equation as follows: 
+\[
+    Y_p(k)=\mathcal{O}_pX(k)+\mathcal{T}_pU_p(k)\quad(12)
+\]
+
+where
+\begin{align*}
+    X(k)&=\begin{bmatrix}
+        x(k)&x(k+1)&\cdots&x(k+N-1)
+    \end{bmatrix}\\
+    Y_p(k)&=\begin{bmatrix}
+        y_p(k)&y_p(k+1)&\cdots &y_p(k+N-1)
+    \end{bmatrix}\\
+    &=\begin{bmatrix}
+        y(k)&y(k+1)&\cdots &y(k+N-1)\\
+        y(k+1)&y(k+2)&\cdots &y(k+N)\\
+        \vdots&\vdots&&\vdots\\
+        y(k+p-1)&y(k+p)&\cdots &y(k+p+N-2)
+    \end{bmatrix}\\
+    U_p(k)&=\begin{bmatrix}
+        u_p(k)&u_p(k+1)&\cdots&u_p(k+N-1)
+    \end{bmatrix}\\
+    &=\begin{bmatrix}
+        u(k)&u(k+1)&\cdots &u(k+N-1)\\
+        u(k+1)&u(k+2)&\cdots &u(k+N)\\
+        \vdots&\vdots&&\vdots\\
+        u(k+p-1)&u(k+p)&\cdots&u(k+p+N-2)
+    \end{bmatrix}\\
+    &\quad (13)
+\end{align*}
+
+The integer $N$ must be sufficiently large so that the rank of $Y_p(k)$ and $U_p(k)$ is at least equal to the rank of $\mathcal{O}_p$. 
+Equation (12) is the key equation used to solve for $\mathcal{Q}_p$ and $\mathcal{T}_p$ and includes the input-and output-data information up to the data point $k+p+N-2$. 
+Because the data matrix $Y_p(k)$ and $U_p(k)$ are the only information given, it is necessary to focus on these two matrices to extract information necessary to determine the system matrices $A,B,C,$ and $D$. 
+
+The following quantities are defined as: 
+\begin{align*}
+    \mathcal{R}_{yy}&=\frac{1}{N}Y_p(k)Y_p^\top(k)\\
+    \mathcal{R}_{yu}&=\frac{1}{N}Y_p(k)U_p^\top(k)\\
+    \mathcal{R}_{uu}&=\frac{1}{N}U_p(k)U_p^\top(k)\\
+    \mathcal{R}_{xx}&=\frac{1}{N}X(k)X^\top(k)\\
+    \mathcal{R}_{yx}&=\frac{1}{N}Y_p(k)X^\top(k)\\
+    \mathcal{R}_{xu}&=\frac{1}{N}X(k)U_p^\top(k)\\
+    &\quad (14)
+\end{align*}
+
+where $N=\ell-p$, with $\ell$ being the data length and $p$ the data shift. 
+The quantities $\mathcal{R}_{yy}$, $\mathcal{R}_{uu}$, and $\mathcal{R}_{xx}$ are symmetric matrices. 
+The square matrices $\mathcal{R}_{yy}$ $(mp\times mp)$, $\mathcal{R}_{uu}$ $(rp\times rp)$, and $\mathcal{R}_{xx}$ $(n\times n)$ are the auto-correlations of the output data $y$ with time shifts, the input data $u$ with time shifts, and the state vector $x$, respectively. 
+The rectangular matrices $\mathcal{R}_{yu}$ $(mp\times rp)$, $\mathcal{R}_{yx}$ $(mp\times n)$, and $\mathcal{R}_{xu}$ $(n\times rp)$ represent the cross correlations of the output data $y$ and the input data $u$, the output data $y$ and the state vector $x$, and the state vector $x$ and input data $u$, respectively. 
+When the integer $N$ is sufficiently large, the quantities defined in equations (14) approximate expected values in the statistical sense if the input and output data are stationary processes satisfying the ergodic property. 
+
+Taking the singular-value decomposition of the symmetric matrix $\mathcal{R}_{hh}$ yields 
+\[
+    \mathcal{R}_{hh}=\mathcal{U}\Sigma^2\mathcal{U}^\top
+    =\begin{bmatrix}
+        \mathcal{U}_n&\mathcal{U}_o
+    \end{bmatrix}
+    \begin{bmatrix}
+        \Sigma_n^2&0_{n\times n_o}\\
+        0_{n_o\times n}&o_{n_o}
+    \end{bmatrix}
+    \begin{bmatrix}
+        \mathcal{U}_n^\top\\
+        \mathcal{U}_o^\top
+    \end{bmatrix}
+    =\mathcal{U}_n\Sigma_n^2\mathcal{U}_n^\top
+    \quad (26)
+\]
+
+The integer $n_o=pm-n$ is the number of dependent columns in $\mathcal{R}_{hh}$, $0_{n\times n_o}$ is an $n\times n_o$ zero matrix, and $0_{n_o}$ is a square-zero matrix of order $n_o$. 
+The $pm\times n$ matrix $\mathcal{U}_n$ corresponds to the $n$ nonzero singular values in the diagonal matrix $\Sigma_n$, and the $pm\times n_o$ matrix $\mathcal{U}_o$ is associated with the $n_o$ zero singular values. 
+
+\textbf{Partial decomposition method}. 
+Regardless of which integer $p$ is chosen, the minimum value of $n_o$ must be $m$ (the number of outputs) to make $n<pm$, which will then satisfy the equality constraint in equation (27). 
+There is one way of avoiding any singular-values truncation. 
+Instead of taking the singular-value decomposition of the $pm\times pm$ square matrix $\mathcal{R}_{hh}$, factor only part of the matrix as follows: 
+\[
+    \mathcal{R}_{hh}(:,1:(p-1)m)=\mathcal{U}\Sigma^2\mathcal{V}^\top 
+    =\begin{bmatrix}
+        \mathcal{U}_n'&\mathcal{U}_o'
+    \end{bmatrix}
+    \begin{bmatrix}
+        \Sigma_n^2&0_{n\times n_0}\\
+        0_{n_o'\times n}&0_{n_o'\times n_o}
+    \end{bmatrix}
+    \begin{bmatrix}
+        \mathcal{V}_n^\top\\
+        \mathcal{V}_o^\top
+    \end{bmatrix}
+    =\mathcal{V}_n\Sigma_n^2\mathcal{V}_n^\top
+    \quad (31)
+\]
+
+The dimension of $\mathcal{R}_{hh}(:,1:(p-1)m)$ is $pm\times (p-1)m$, meaning there are more rows than columns. 
+The integer $n_o$ indicates the number of zero singular values and also the number of columns of $\mathcal{V}_o$. 
+The integer $n_o'$ is the number of columns of $\mathcal{U}_o'$ that are orthogonal to the columns of $\mathcal{U}_n'$. 
+For noisy data, there are no zero singular values, that is, $n_o=0$. 
+If no singular values are truncated, $n_o'=m$ is obtained. 
+If some small singular values are truncated, $n_o'$ becomes the sum of $m$ and the number of truncated singular values. 
+Stated differently, there are at least $m$ columns of $\mathcal{U}_o'$ that are orthogonal to the columns of $\mathcal{U}_n'$ in equation (31). 
+
+Equations (37) can be rewritten in the following matrix form: 
+\[
+    \mathcal{U}_{o\mathcal{T}}=\mathcal{U}_{on}\begin{bmatrix}
+        D\\B
+    \end{bmatrix}\quad (38)
+\]
+where 
+\begin{align*}
+    \mathcal{U}_{o\mathcal{T}}&=\begin{bmatrix}
+        \mathcal{U}_o^\top\mathcal{T}_p(:,1:r)\\
+        \mathcal{U}_o^\top\mathcal{T}_p(:,r+1:2r)\\
+        \mathcal{U}_o^\top\mathcal{T}_p(:,2r+1:3r)\\
+        \vdots\\
+        \mathcal{U}_o^\top\mathcal{T}_p(:,(p-1)r+1:pr)
+    \end{bmatrix}\\
+    \mathcal{U}_{on}&=\begin{bmatrix}
+        \mathcal{U}_o^\top(:,1:m)&\mathcal{U}_o^\top(:,m+1:pm)\mathcal{U}_n(1:(p-1)m,:)\\
+        \mathcal{U}_o^\top(:,m+1:2m)&\mathcal{U}_o^\top(:,2m+1:pm)\mathcal{U}_n(1:(p-2)m,:)\\
+        \mathcal{U}_o^\top(:,2m+1:3m)&\mathcal{U}_o^\top(:,3m+1:pm)\mathcal{U}_n(1:(p-3)m,:)\\
+        \vdots&\vdots\\
+        \mathcal{U}_o^\top(:,(p-1)m+1:pm)&0_{n_o\times n}
+    \end{bmatrix}
+\end{align*}
+
+The dimension of $\mathcal{U}_{o\mathcal{T}}$ is $pn_o\times pr$ and the dimension of $\mathcal{U}_{on}$ is $pn_o\times (m+n)$. 
+Let the right side of equation (34) be denoted by 
+\[
+    \mathcal{U}_{o\mathcal{R}}=\mathcal{U}_o^\top\mathcal{R}_{yu}\mathcal{R}_{uu}^{-1}\quad (39)
+\]
+where $\mathcal{U}_{o\mathcal{R}}$ is an $n_o\times pr$ matrix. 
+Equation (38) shows that $\mathcal{U}_{o\mathcal{T}}$ is thus given by 
+\[
+    \mathcal{U}_{o\mathcal{T}}=\begin{bmatrix}
+        \mathcal{U}_{o\mathcal{R}}(:,1:r)\\
+        \mathcal{U}_{o\mathcal{R}}(:,r+1:2r)\\
+        \mathcal{U}_{o\mathcal{R}}(:,2r+1:3r)\\
+        \vdots\\
+        \mathcal{U}_{o\mathcal{R}}(:,(p-1)r+1:pr)
+    \end{bmatrix}
+    \quad (40)
+\]
+and matrices $B$ and $D$ can be computed by 
+\[
+    \begin{bmatrix}
+        D\\B
+    \end{bmatrix}
+    =\mathcal{U}_{on}^\dagger\mathcal{U}_{o\mathcal{T}}
+    \quad (41)
+\]
+The first $m$ rows of $\mathcal{U}_{on}^\dagger\mathcal{U}_{o\mathcal{T}}$ form the matrix $D$, and the last $n$ rows produce the matrix $B$. 
+
+Similar to equation (38), equation (52) can be rewritten in the following matrix form: 
+\[
+    \mathcal{O}_{p\Gamma}=\mathcal{O}_{pA}\begin{bmatrix}
+        D\\B
+    \end{bmatrix}
+    \quad (53)
+\]
+where 
+\footnotesize
+\begin{align*}
+    \mathcal{O}_{p\Gamma}&=
+    \begin{bmatrix}
+        \mathcal{O}_p^\dagger\Gamma(:,1:r)\\
+        \mathcal{O}_p^\dagger\Gamma(:,r+1:2r)\\
+        \mathcal{O}_p^\dagger\Gamma(:,2r+1:3r)\\
+        \vdots\\
+        \mathcal{O}_p^\dagger\Gamma(:,pr+1:(p+1)r)
+    \end{bmatrix}\\
+    \mathcal{O}_{pA}&=
+    \begin{bmatrix}
+        -A\mathcal{O}_p^\dagger(:,1:m)&
+        I_n-A\mathcal{O}_p^\dagger(:,m+1:pm)\mathcal{O}_p(1:(p-1)m,:)\\
+        \mathcal{O}_p^\dagger(:,1:m)-A\mathcal{O}_p^\dagger(m+1:2m,:)&
+        \mathcal{O}_p^\dagger(:,m+1:pm)\mathcal{O}_p(:,1:(p-1)m)-A\mathcal{O}_p^\dagger(:,2m+1:pm)\mathcal{O}_p(1:(p-2)m,:)\\
+        \mathcal{O}_p^\dagger(:,m+1:2m)-A\mathcal{O}_p^\dagger(2m+1:3m,:)&
+        \mathcal{O}_p^\dagger(:,2m+1:pm)\mathcal{O}_p(:,1:(p-2)m)-A\mathcal{O}_p^\dagger(:,3m+1:pm)\mathcal{O}_p(1:(p-3)m,:)\\
+        \vdots&\vdots\\
+        \mathcal{O}_p^\dagger(:,(p-1)m+1:pm)&0_n
+    \end{bmatrix}
+\end{align*}
+\normalsize
+Here, $I_n$ is an identity matrix of order $n$ and $0_n$ is a zero matrix of order $n$. 
+The quantity $\mathcal{O}_{p\Gamma}$ is a $pn\times r$ matrix and $\mathcal{O}_{pA}$ is a $(p+1)n\times (m+n)$ matrix. 
+
+Substituting equations (62) into equation (57) yields 
+\[
+    y_N(0)=\Phi\Theta\quad (63)
+\]
+where 
+\[
+    \Theta=\begin{bmatrix}
+        x(0)\\
+        \underline{d}\\
+        \underline{b}
+    \end{bmatrix}\quad 
+    \Phi=\begin{bmatrix}
+        C&\underline{\mathcal{U}}_m(0)&0_{m\times n}\\
+        CA&\underline{\mathcal{U}}_m(1)&C\underline{\mathcal{U}}_n(0)\\
+        CA^2&\underline{\mathcal{U}}_m(2)&CA\underline{\mathcal{U}}(0)+C\underline{\mathcal{U}}_n(1)\\
+        \vdots&&\\
+        CA^{N-1}&\underline{\mathcal{U}}_m(N-1)&\sum_{k=0}^{N-2}CA^{N-k-2}\underline{\mathcal{U}}_n(k)
+    \end{bmatrix}
+    \quad (64)
+\]
+The vector size $\Theta$ is $(n+mr+nr)\times 1$ and the matrix size $\Phi$ is $mN\times (n+mr+nr)$. 
+The unknown vector $\Theta$ can then be solved by 
+\[
+    \Theta=\Phi^\dagger y_N(0)\quad (65)
+\]
+where $\dagger$ denotes the pseudo-inverse. 

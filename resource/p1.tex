@@ -1,0 +1,60 @@
+\textbf{Computational Steps} \\
+
+To better understand the computational procedure for the SRIM algorithm, the computational steps are summarized as follows: 
+
+\begin{enumerate}
+  \item Choose an integer $p$ so that 
+  \[
+    p\geq\frac{n}{m}+1,
+  \]
+  where $n$ is the desired order of the system and $m$ is the number of outputs. 
+  \item Compute correlation matrices $\mathcal{R}_{yy}$ of dimension $pm\times pm$, $\mathcal{R}_{yu}$ of dimension $pm\times pr$, and $\mathcal{R}_{uu}$ of dimension $pr\times pr$ (eqs. (14)) with the matrices $Y_p(k)$ of dimension $pm\times N$ and $\mathcal{U}_p(k)$ of dimension $pr\times N$ (eqs. (13)). 
+  The integer $r$ is the number of inputs. 
+  The index $k$ is the data point used as the starting point for system identification. 
+  The integer $N$ must be chosen so that 
+  \[
+    \ell-k-p+2\geq N>>\min(pm,pr),
+  \]
+  where $\ell$ is the length of the data. 
+  \item Calculate the correlation matrix $\mathcal{R}_{hh}$ of dimension $pm\times pm$ (eqs. (14)), that is, 
+  \[
+    \mathcal{R}_{hh}=\mathcal{R}_{yy}-\mathcal{R}_{yu}\mathcal{R}^{-1}_{uu}\mathcal{R}^\top_{yu}.
+  \]
+  \item Factor $\mathcal{R}_{hh}$ with singular-value decomposition for the full decomposition method (eq. (26)) or a portion of $\mathcal{R}_{hh}$ for the partial decomposition method (eq. (31)). 
+  \item Determine the order $n$ of the system by examining the singular values of $\mathcal{R}_{hh}$, and obtain $\mathcal{U}_n$ of dimension $pm\times n$ (eq. (26)) and $\mathcal{U}_o$ of dimension $pm\times n_o$, where $n_o=pm-n$ is the number of truncated small singular values. 
+  The integer $n_o$ must satisfy the condition 
+  \[
+    pn_o\geq(m+n)
+  \]
+  for the full decomposition method. 
+  For the partial decomposition method, $\mathcal{U}_n$ is replaced by $\mathcal{U}'_n$ (eq. (31)) and the integer $n_o$ is the sum of $m$ and the number of truncated singular values. 
+  \item Let $\mathcal{U}_n=\mathcal{O}_p$ or $\mathcal{U}'_n=\mathcal{O}_p$. 
+  Use equation (8) to determine the state matrix $A$. 
+  The output matrix $C$ is the first $m$ rows of $\mathcal{U}_n$. 
+  \item Compute 
+  \[
+    \mathcal{U}_{o\mathcal{R}}=\mathcal{U}_o^\top\mathcal{R}_{yu}\mathcal{R}_{uu}^{-1}
+  \]
+  (eq. (39)) for the indirect method, and construct $\mathcal{U}_{on}$ and $\mathcal{U}_{o\mathcal{T}}$ (eqs. (38) and (40)). 
+  Determine the input matrix $B$ and the direct transmission matrix $D$ from equation (41) (i.e., the first $m$ rows of $\mathcal{U}_{on}^\dagger \mathcal{U}_{o\mathcal{T}}$ from $D$ and the last $n$ rows produce $B$). 
+  For the direct method, construct $\mathcal{O}_{p\Gamma}$ and $\mathcal{O}_{pA}$ from equation (53) and solve for matrices $B$ and $D$ by computing $\mathcal{O}_{pA}^\dagger \mathcal{O}_{p\Gamma}$. 
+  The first $m$ rows of $\mathcal{O}_{pA}^\dagger\mathcal{O}_{p\Gamma}$ form matrix $D$, and the last $n$ rows produce matrix $B$. 
+
+  For the output-error minimization method, construct $y_N(0)$ and $\Phi$ from equations (64) and solve for matrices $B$ and $D$ by computing $\Phi^\dagger y_N(0)$. 
+  The first $n$ elements of $\Phi^\dagger y_N(0)$ form the initial state vector $x(0)$, the second $mr$ elements give the $r$ column vectors of $D$, and the last $nr$ elements produce the $r$ column vectors of $B$. 
+  \item Find the eigenvalues and eigenvectors of the realized state matrix and transform the realized model into model coordinates to compute system damping and frequencies. 
+  This step is needed only if modal parameters identification is desired. 
+  \item Calculate mode singular values (ref. 1) to quantify and distinguish the system and noise modes. 
+  This step provides a way for model reduction with modal truncation. 
+\end{enumerate}
+
+The computational steps reduce to the steps for the ERA/DC method (ref. 1) when the output data are the pulse-response-time history. 
+Assume that a pulse is given to excite the system at the time step zero. 
+Let $k=1$ in step 2. 
+The correlation matrix $\mathcal{R}_{yu}$ and $\mathcal{R}_{uu}$ become null, and $\mathcal{R}_{hh}=\mathcal{R}_{yy}$ is obtained. 
+Theoretically, the formulation 
+\[
+  \mathcal{R}_{hh}=\mathcal{R}_{yy}-\mathcal{R}_{yu}\mathcal{R}_{uu}^{-1}\mathcal{R}_{yu}^\top
+\]
+should not be used for computation of $\mathcal{R}_{hh}$ if $\mathcal{R}_{uu}$ is not invertible. 
+For special cases such as free decay and pulse responses, $\mathcal{R}_{hh}$ reduces to $\mathcal{R}_{yy}$ when the integer $k$ is chosen at the point where the input signal vanishes. 

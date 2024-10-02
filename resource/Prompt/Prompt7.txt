@@ -1,0 +1,41 @@
+要求に従い、疑似コードを提案せよ。
+
+要求：
+    U_nとU_oを受け取り、U_on を返す関数を考えよ。
+    疑似コードを理論式でかけ。
+    可読性を心がけよ。
+    ギリシャ文字でかけ。
+    つぎの手順でU_onを生成せよ。
+    手順：
+        U_oから
+        \mathcal{U}_o^\top(:,1:m)\\
+        \mathcal{U}_o^\top(:,m+1:2m)\\
+        \mathcal{U}_o^\top(:,2m+1:3m)\\
+        \vdots\\
+        \mathcal{U}_o^\top(:,(p-1)m+1:pm)\\
+        行列を生成せよ。
+        U_oとU_nから
+        \mathcal{U}_o^\top(:,m+1:pm)\mathcal{U}_n(1:(p-1)m,:)\\
+        \mathcal{U}_o^\top(:,2m+1:pm)\mathcal{U}_n(1:(p-2)m,:)\\
+        \mathcal{U}_o^\top(:,3m+1:pm)\mathcal{U}_n(1:(p-3)m,:)\\
+        \vdots\\
+        0_{n_o\times n}
+        行列を生成せよ。
+        二つの生成した行列を結合し、U_onを生成せよ。
+        ここで、0_{n_o\times n}は、
+        \mathcal{U}_o^\top(:,m+1:pm)\mathcal{U}_n(1:(p-1)m,:)\\
+        \mathcal{U}_o^\top(:,2m+1:pm)\mathcal{U}_n(1:(p-2)m,:)\\
+        \mathcal{U}_o^\top(:,3m+1:pm)\mathcal{U}_n(1:(p-3)m,:)\\
+        で生成すると、前者の生成された行列よりも行数が小さくなり、結合できないため、行数を合わせるためのゼロ行列である。
+
+資料：
+The integer $n_o=pm-n$ is the number of dependent columns in $\mathcal{R}_{hh}$, $0_{n\times n_o}$ is an $n\times n_o$ zero matrix, and $0_{n_o}$ is a square-zero matrix of order $n_o$. 
+The $pm\times n$ matrix $\mathcal{U}_n$ corresponds to the $n$ nonzero singular values in the diagonal matrix $\Sigma_n$, and the $pm\times n_o$ matrix $\mathcal{U}_o$ is associated with the $n_o$ zero singular values. 
+\mathcal{U}_{on}&=\begin{bmatrix}
+    \mathcal{U}_o^\top(:,1:m)&\mathcal{U}_o^\top(:,m+1:pm)\mathcal{U}_n(1:(p-1)m,:)\\
+    \mathcal{U}_o^\top(:,m+1:2m)&\mathcal{U}_o^\top(:,2m+1:pm)\mathcal{U}_n(1:(p-2)m,:)\\
+    \mathcal{U}_o^\top(:,2m+1:3m)&\mathcal{U}_o^\top(:,3m+1:pm)\mathcal{U}_n(1:(p-3)m,:)\\
+    \vdots&\vdots\\
+    \mathcal{U}_o^\top(:,(p-1)m+1:pm)&0_{n_o\times n}
+\end{bmatrix}
+The dimension of $\mathcal{U}_{o\mathcal{T}}$ is $pn_o\times pr$ and the dimension of $\mathcal{U}_{on}$ is $pn_o\times (m+n)$. 

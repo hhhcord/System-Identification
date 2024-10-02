@@ -1,0 +1,30 @@
+\begin{figure}[htbp]
+  \begin{algorithm}[H]
+  \caption{SRIM Algorithm Computational Procedure}
+  \begin{algorithmic}[1]
+  \REQUIRE Desired system order $n$, number of outputs $m$, number of inputs $r$, data length $\ell$
+  \ENSURE State-space matrices $A$, $B$, $C$, $D$
+  
+  \STATE Choose an integer $p$ such that \[p \geq \frac{n}{m} + 1\]
+  
+  \STATE Compute correlation matrices $\mathcal{R}_{yy}$, $\mathcal{R}_{yu}$, and $\mathcal{R}_{uu}$ using $Y_p(k)$ and $\mathcal{U}_p(k)$ with $N$ satisfying \[\ell - k - p + 2 \geq N \gg \min(pm, pr)\]
+  
+  \STATE Calculate \[\mathcal{R}_{hh} = \mathcal{R}_{yy} - \mathcal{R}_{yu}\mathcal{R}^{-1}_{uu}\mathcal{R}^\top_{yu}\]
+  
+  \STATE Factor $\mathcal{R}_{hh}$ using Singular Value Decomposition (SVD) for either full or partial decomposition
+  
+  \STATE Determine the system order $n$ and obtain $\mathcal{U}_n$ and $\mathcal{U}_o$ where $pn_o \geq (m + n)$ for full decomposition or adjust for partial decomposition
+  
+  \STATE Set $\mathcal{U}_n = \mathcal{O}_p$ and use equation (8) to determine the state matrix $A$ and the output matrix $C$
+  
+  \STATE Compute $\mathcal{U}_{o\mathcal{R}}$ and construct $\mathcal{U}_{on}$ and $\mathcal{U}_{o\mathcal{T}}$. Determine $B$ and $D$ using equation (41) for indirect or direct methods
+  
+  \STATE For output-error minimization, construct $y_N(0)$ and $\Phi$, solve for $B$, $D$, and initial state vector $x(0)$
+
+  \STATE Find eigenvalues and eigenvectors of the realized state matrix to compute system damping and frequencies
+  
+  \STATE Calculate mode singular values to distinguish system and noise modes for potential model reduction
+
+  \end{algorithmic}
+  \end{algorithm}
+\end{figure}

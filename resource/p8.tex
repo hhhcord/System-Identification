@@ -1,0 +1,80 @@
+\begin{figure}[htbp]
+    \begin{algorithm}[H]
+    \caption{SRIMアルゴリズムの計算手順}
+    \begin{algorithmic}[1]
+    \REQUIRE 系の次数 $n \in \mathbb{N}$, 出力の数 $m \in \mathbb{N}$, 入力の数 $r \in \mathbb{N}$, データの長さ $\ell \in \mathbb{N}$, 実数値データ行列 $Y \in \mathbb{R}^{m \times \ell}$, $U \in \mathbb{R}^{r \times \ell}$
+    \ENSURE 状態空間行列 $A \in \mathbb{R}^{n \times n}$, $B \in \mathbb{R}^{n \times r}$, $C \in \mathbb{R}^{m \times n}$, $D \in \mathbb{R}^{m \times r}$
+    
+    \STATE 整数 $p$ を選択し、次を満たすようにする: 
+    \[
+    p \geq \frac{n}{m} + 1
+    \]
+    
+    \STATE データ行列 $Y_p(k)$ と $U_p(k)$ を作成する。$Y_p(k)$ のサイズは $pm \times N$、$U_p(k)$ のサイズは $pr \times N$ となる:
+    \[
+    Y_p(k) = \begin{bmatrix} 
+    y(k) & y(k+1) & \cdots & y(k+N-1) \\ 
+    y(k+1) & y(k+2) & \cdots & y(k+N) \\ 
+    \vdots & \vdots & \ddots & \vdots \\ 
+    y(k+p-1) & y(k+p) & \cdots & y(k+p+N-2) 
+    \end{bmatrix}
+    \]
+    同様に、$U_p(k)$ は次の形式を持つ:
+    \[
+    U_p(k) = \begin{bmatrix} 
+    u(k) & u(k+1) & \cdots & u(k+N-1) \\ 
+    u(k+1) & u(k+2) & \cdots & u(k+N) \\ 
+    \vdots & \vdots & \ddots & \vdots \\ 
+    u(k+p-1) & u(k+p) & \cdots & u(k+p+N-2) 
+    \end{bmatrix}
+    \]
+    
+    \STATE 相関行列 $\mathcal{R}_{yy}$, $\mathcal{R}_{yu}$, $\mathcal{R}_{uu}$ を計算する:
+    \[
+    \mathcal{R}_{yy} = \frac{1}{N} Y_p(k) Y_p^\top(k) \quad \text{($pm \times pm$)}
+    \]
+    \[
+    \mathcal{R}_{yu} = \frac{1}{N} Y_p(k) U_p^\top(k) \quad \text{($pm \times pr$)}
+    \]
+    \[
+    \mathcal{R}_{uu} = \frac{1}{N} U_p(k) U_p^\top(k) \quad \text{($pr \times pr$)}
+    \]
+    
+    \STATE 相関行列 $\mathcal{R}_{hh}$ を以下の式で計算する:
+    \[
+    \mathcal{R}_{hh} = \mathcal{R}_{yy} - \mathcal{R}_{yu}\mathcal{R}^{-1}_{uu}\mathcal{R}^{\top}_{yu} \quad \text{($pm \times pm$)}
+    \]
+    
+    \STATE 特異値分解（SVD）を用いて $\mathcal{R}_{hh}$ を次のように分解する:
+    \[
+    \mathcal{R}_{hh} = \mathcal{U}\Sigma^2\mathcal{U}^\top
+    \]
+    ここで、$\mathcal{U}$ のサイズは $pm \times pm$ であり、$n$ 個の特異値に対応する部分を抽出して、$\mathcal{U}_n$ のサイズは $pm \times n$ となる。
+    
+    \STATE 観測行列 $\mathcal{O}_p$ を次のように定義し、状態行列 $A$ を計算する:
+    \[
+    \mathcal{O}_p = \mathcal{U}_n \quad \text{($pm \times n$)}
+    \]
+    \[
+    A = \mathcal{O}_p^\dagger(1:(p-1)m,:) \mathcal{O}_p(m+1:pm,:) \quad \text{($n \times n$)}
+    \]
+    
+    \STATE $\mathcal{U}_{o\mathcal{R}} = \mathcal{U}_o^\top \mathcal{R}_{yu} \mathcal{R}_{uu}^{-1}$ を計算し、$B$ と $D$ を次の式で求める:
+    \[
+    \mathcal{U}_{o\mathcal{T}} = \begin{bmatrix} 
+    \mathcal{U}_{o\mathcal{R}}(:,1:r) \\ 
+    \mathcal{U}_{o\mathcal{R}}(:,r+1:2r) \\ 
+    \vdots \\ 
+    \mathcal{U}_{o\mathcal{R}}(:,(p-1)r+1:pr) 
+    \end{bmatrix}
+    \]
+    \[
+    \begin{bmatrix}
+    D\\B
+    \end{bmatrix}
+    = \mathcal{U}_{on}^\dagger \mathcal{U}_{o\mathcal{T}} \quad \text{($D$: $m \times r$, $B$: $n \times r$)}
+    \]
+    
+    \end{algorithmic}
+    \end{algorithm}
+\end{figure}
